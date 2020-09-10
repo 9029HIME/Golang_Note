@@ -3,7 +3,9 @@ package main
 import "fmt"
 
 /**
+
 Golang中两个结构体的强转前提：两个结构体必须有相同个数、相同名称、相同类型的属性
+
 */
 func main() {
 	var a A
