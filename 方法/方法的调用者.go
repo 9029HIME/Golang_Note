@@ -17,6 +17,7 @@ type Integer int
 func (i *Integer) Ind() {
 	if *i == 1 {
 		fmt.Println("等于1")
+		fmt.Println("走进i==1")
 	}
 }
 
