@@ -1,7 +1,7 @@
 package factories
 
 /**
-TODO:Golang中没有构造函数
+TODO:Golang中没有构造函数，建议使用工厂模式来完善封装性
 */
 type student struct {
 	Name  string
