@@ -17,7 +17,21 @@ func main() {
 	toUser, isOk := use.(*User) //将use强转回*User类型,还能多返回一个是否断言成功的布尔值(前提用:=接收)
 	fmt.Println("是否断言成功？", isOk)
 	fmt.Println(toUser)
+}
 
+///TODO 因为多态只体现在接口上，因此只能用interface{}空接口代表Java的Object,即任意传参
+func manyParams(inter ...interface{}) {
+	for index, object := range inter {
+		///TODO：.(type)只能用在switch内
+		switch object.(type) {
+		case bool:
+			var result = object.(bool)
+			fmt.Printf("第%v个传参是bool类型，值是%v", index, result)
+		case string:
+			fmt.Printf("第%v个传参是string类型，值是%v", index, object)
+			///省去
+		}
+	}
 }
 
 type Use interface {
