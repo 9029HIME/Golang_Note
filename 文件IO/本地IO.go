@@ -9,6 +9,7 @@ import (
 
 //TODO Golang中对文件的IO也是基于输入流、输出流。主要是基于os.File结构体操作
 func main() {
+
 	//操作文件步骤：打开→读/写→关闭
 	/**
 	第一步 打开文件流，os包的Open函数,返回File对象指针
