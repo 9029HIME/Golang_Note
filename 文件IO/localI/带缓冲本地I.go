@@ -37,4 +37,6 @@ func main() {
 	最后一步，关闭文件流
 	*/
 	defer file.Close()
+
+	smallRead()
 }
