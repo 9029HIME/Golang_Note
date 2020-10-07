@@ -42,6 +42,8 @@ func useAB(interfacee B) string {
 }
 
 type InterfaceUser struct {
+	//TODO 还可以这样用
+	A
 }
 
 /**

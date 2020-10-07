@@ -15,8 +15,21 @@ func main() {
 	//TODO 管道写入数据
 	stringChannel <- "数据1"
 	fmt.Printf("容量:%v,长度%v\n", cap(stringChannel), len(stringChannel))
-	//TODO 管道读取数据
-	var result = <-stringChannel
-	fmt.Printf("去除的值:%v,容量:%v,长度%v\n", result, cap(stringChannel), len(stringChannel))
+	//TODO 管道读取数据，第二个返回值为是否取成功
+	result, ok := <-stringChannel
+	if ok {
+		fmt.Printf("去除的值:%v,容量:%v,长度%v\n", result, cap(stringChannel), len(stringChannel))
+	}
+	stringChannel <- "数据5"
+	stringChannel <- "数据6"
+	stringChannel <- "数据7"
+	stringChannel <- "数据8"
+	//TODO 关闭管道，关闭后只能读不能写
+	close(stringChannel)
+
+	//TODO 遍历管道，只能用for range遍历关闭后的管道，如果没关闭则报错
+	for v := range stringChannel {
+		fmt.Println("遍历取出的值：", v)
+	}
 
 }

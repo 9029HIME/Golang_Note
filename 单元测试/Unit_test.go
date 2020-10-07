@@ -10,7 +10,12 @@ import (
 )
 
 func TestHello(t *testing.T) {
-	fmt.Println("Hello")
+	var resultChan chan int = make(chan int, 10)
+	resultChan <- 1
+	close(resultChan)
+	for v := range resultChan {
+		fmt.Println(v)
+	}
 }
 
 func TestWorld(t *testing.T) {
