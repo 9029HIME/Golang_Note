@@ -1,6 +1,7 @@
 package main
 
 /**
+
 Golang中管道有两种声明方式：
 	c := make(chan int)
 	c := make(chan int,10)
@@ -14,4 +15,5 @@ TODO 简单来说，如果管道无缓冲区，多个协程对管道的读写操
 		具体区别可以看
 			并发\协程goroutine\带缓冲管道.png
 			并发\协程goroutine\无缓冲管道.png
+
 */
