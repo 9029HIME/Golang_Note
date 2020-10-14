@@ -11,7 +11,6 @@ func main() {
 	i := <-channel
 	fmt.Printf("结果是:%v\n", i)
 	time.Sleep(time.Second * 1)
-
 }
 
 /**
