@@ -45,6 +45,6 @@ func method2() <-chan int {
 func doGo2(channel chan int) {
 	time.Sleep(time.Second * 5)
 	channel <- 1
-	//TODO 如果不等待，写入数据到管道后，主线程的读管道阻塞就会结束，直接结束进程，下一句就不会被执行
+	//TODO 如果不等待，写入数据到管道后，主线程的读管道阻塞就会结束，直接结束进程，下一句就不会执行
 	fmt.Println("写入数据完毕")
 }
