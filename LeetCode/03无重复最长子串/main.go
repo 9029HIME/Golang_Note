@@ -1,16 +1,10 @@
 package main
 
-/**
-TODO Golang中单元测试的文件名必须以_test结尾
-	测试用例必须以Test开头，且参数必须为(*testing.T)
-*/
-import (
-	"fmt"
-	"testing"
-)
+func main() {
 
-func TestHello(t *testing.T) {
-	s := "abba"
+}
+
+func lengthOfLongestSubstring(s string) int {
 	bytes := []byte(s)
 	result := 0
 	/**
@@ -34,9 +28,6 @@ func TestHello(t *testing.T) {
 			}
 		}
 	}
-	fmt.Println(result)
-}
+	return result
 
-func TestWorld(t *testing.T) {
-	fmt.Println("World")
 }
