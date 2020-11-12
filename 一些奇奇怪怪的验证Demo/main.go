@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 )
 
 func main() {
-	channel := method2()
-	fmt.Printf("准备拿结果\n")
-	i := <-channel
-	fmt.Printf("结果是:%v\n", i)
-	time.Sleep(time.Second * 1)
+	//channel := method2()
+	//fmt.Printf("准备拿结果\n")
+	//i := <-channel
+	//fmt.Printf("结果是:%v\n", i)
+	//time.Sleep(time.Second * 1)
+	closeChan()
 }
 
 /**
@@ -47,4 +49,32 @@ func doGo2(channel chan int) {
 	channel <- 1
 	//TODO 如果不等待，写入数据到管道后，主线程的读管道阻塞就会结束，直接结束进程，下一句就不会执行
 	fmt.Println("写入数据完毕")
+}
+
+/**
+https://ms2008.github.io/2019/05/22/golang-data-race-cont/
+*/
+func dataRace() {
+	num := new(Num)
+	runtime.GOMAXPROCS(4)
+	go func() {
+		for {
+			fmt.Println("i is", num.I)
+		}
+	}()
+	for {
+		num.I = num.I + 1
+	}
+}
+
+type Num struct {
+	I int
+}
+
+func closeChan() {
+	i := make(chan int)
+	close(i)
+	value := <-i
+	fmt.Println(value)
+
 }
