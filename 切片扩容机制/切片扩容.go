@@ -8,6 +8,7 @@ import (
 TODO:需要注意的是：
 	1.如果切片直接切一个容量为cap的数组，切的长度为len。那么该切片的长度为len，容量为cap。只要len<=cap。append()就不会动态扩容
 	2.就算一个切片的cap>len,当获取len<index<cap的切片index下标数据时，仍然会抛out of range错误，而非默认值
+	3.如果方法体的操作有可能使切片扩容，方法传参最好是切片指针
 */
 func main() {
 	var arr [3]int = [3]int{1, 2, 3}

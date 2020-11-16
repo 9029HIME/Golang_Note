@@ -12,7 +12,8 @@ func main() {
 	//i := <-channel
 	//fmt.Printf("结果是:%v\n", i)
 	//time.Sleep(time.Second * 1)
-	closeChan()
+	hold()
+
 }
 
 /**
@@ -76,5 +77,17 @@ func closeChan() {
 	close(i)
 	value := <-i
 	fmt.Println(value)
+}
 
+//就不让出时间片
+func hold() {
+	runtime.GOMAXPROCS(1)
+	go func() {
+		for {
+			fmt.Println("阻塞阻塞")
+		}
+	}()
+	for {
+		fmt.Println("主线程主线程")
+	}
 }
