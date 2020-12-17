@@ -7,13 +7,7 @@ import (
 )
 
 func main() {
-	//channel := method2()
-	//fmt.Printf("准备拿结果\n")
-	//i := <-channel
-	//fmt.Printf("结果是:%v\n", i)
-	//time.Sleep(time.Second * 1)
-	hold()
-
+	dualSlice()
 }
 
 /**
@@ -79,15 +73,15 @@ func closeChan() {
 	fmt.Println(value)
 }
 
-//就不让出时间片
-func hold() {
-	runtime.GOMAXPROCS(1)
+//无缓冲通道
+func NoCacheChan() {
+	noCache := make(chan int)
 	go func() {
-		for {
-			fmt.Println("阻塞阻塞")
-		}
+		time.Sleep(time.Second * 3)
+		fmt.Println("睡醒了")
+		<-noCache
+		fmt.Println("已拿1")
 	}()
-	for {
-		fmt.Println("主线程主线程")
-	}
+	noCache <- 1
+	fmt.Println("已放1")
 }
