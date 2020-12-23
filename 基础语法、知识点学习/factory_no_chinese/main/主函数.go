@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Study/factory_no_chinese/factories"
+	"Study/基础语法、知识点学习/factory_no_chinese/factories"
 	"fmt"
 )
 
