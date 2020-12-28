@@ -11,10 +11,14 @@ https://zhuanlan.zhihu.com/p/27917262
 	此时会触发 Go 的 HandOff 机制，将 P1 detach()到其他 M 上吗？
 	如果会，过段时间另一个协程 G2 从 chan 里取数据，G1 的阻塞结束。
 	G1 会直接进入某个 P 的协程队列尾(有空闲 P)或全局协程队列尾(无空闲 P)吗？还是说插队回到 P1 的队首？
+代码示例：
+	//TODO 值得注意的是，如果chan的数据是值类型，是申请一段连续的内存空间。因为chan类型是指针的话，gc是不能回收的（指针被goroutine引用着）。所以GC一段连续的空间能减少GC的压力
 	channel := make(chan int)
 	go func() {
 		//TODO 在主线程读通道前，这个Goroutine到底处于什么状态？
+			答：G变为阻塞状态，打包成sudog，挂在channel的recvq或sendq里，等待其他G的唤醒。TODO 此时还有很多细节流程，如Direct操作、通道锁、归还G等等。可以看main函数内的注释
 		//TODO 还有一个很奇怪的疑问，同一时刻，一个Goroutine会不会阻塞在两个不同的Channel？
+			答：目前还没有确定的答案，但有些博客说一个G会被打包成多个sudog，挂在不同的channel上（TODO 这个观点我有点不认同，因为G被打包成sudog后就阻塞了，按道理没机会去读其他G）
 		channel <- 1
 	}()
 	time.Sleep(time.Second*3)
@@ -202,11 +206,13 @@ https://zhuanlan.zhihu.com/p/27917262
 				unlock(&c.lock)
 				panic(plainError("send on closed channel"))
 			}
-			// TODO 写数据进管道前，先看看有没有其他G因为读而阻塞，如果有，唤醒它，并把数据给它，而非通过管道传输。同时对通道解锁
 			if sg := c.recvq.dequeue(); sg != nil {
 				// Found a waiting receiver. We pass the value we want to send
 				// directly to the receiver, bypassing the channel buffer (if any).
-				// TODO 直接将数据给要读的Goroutine
+				//TODO 这一步的处理是：
+					1.如果为非缓冲通道，则直接将自己的值拷贝到接收者那 //TODO sendDirect()
+					2.如果为缓冲通道，代表通道buf为空，接收者等待着数据，也是直接将自己的值拷贝到接收者那 //TODO sendDirect()
+					3.TODO 最后goready接收者
 				send(c, sg, ep, func() { unlock(&c.lock) }, 3)
 				return true
 			}
@@ -289,7 +295,7 @@ https://zhuanlan.zhihu.com/p/27917262
 			releaseSudog(mysg)
 			return true
 		}
-	6.再看看 <- chan的源码
+	6.再看看 <- chan的源码 //TODO 这里的ep指的是 x := <- chan里x的地址，有可能为空，即 <- chan
 		if debugChan {
 			print("chanrecv: chan=", c, "\n")
 		}
@@ -410,7 +416,7 @@ func main() {
 				2.G被摘除后会打包成sudog，注意这里还有对sudog队列的存取过程，然后挂在chan的sendq队列里(gopark调用scheduler)。此时G处于Waiting状态
 					等待另外的G调用goready唤醒
 			case 通道为空，有接收者sudog（唤醒）
-				1.发送者G直接将值拷贝到接收者G的栈里面（此时不走通道了，TODO Go只有这种情况下才会操作不同Goroutine栈的数据,不过有个问题：网上说这时不会拿通道锁，但源码里写着拷贝过程中是持锁的？
+				1.发送者G直接将值拷贝到接收者G的栈里面,即sendDirect（此时不走通道了，TODO Go只有这种情况下才会操作不同Goroutine栈的数据,不过有个问题：网上说这时不会拿通道锁，但源码里写着拷贝过程中是持锁的？
 				2.发送者唤醒接收者sudog（goready调用scheduler），使接收者G处于runnable状态，会被原P的runnext所指向（TODO 可以理解为插队？）
 			}
 		}else{
@@ -420,7 +426,7 @@ func main() {
 				2.G被摘除后会打包成sudog，注意这里还有对sudog队列的存取过程，然后挂在chan的sendq队列里(gopark调用scheduler)。此时G处于Waiting状态
 					等待另外的G调用goready唤醒
 			case 有接收者sudog（唤醒）：
-				1.发送者G直接将值拷贝到接收者G的栈里面（此时不走通道了，TODO Go只有这种情况下才会操作不同Goroutine栈的数据,不过有个问题：网上说这时不会拿通道锁，但源码里写着拷贝过程中是持锁的？
+				1.发送者G直接将值拷贝到接收者G的栈里面，即sendDirect（此时不走通道了，TODO Go只有这种情况下才会操作不同Goroutine栈的数据,不过有个问题：网上说这时不会拿通道锁，但源码里写着拷贝过程中是持锁的？
 				2.发送者唤醒接收者sudog（goready调用scheduler），使接收者G处于runnable状态，会被原P的runnext所指向（TODO 可以理解为插队？）
 			}
 		}
@@ -445,7 +451,7 @@ func main() {
 				2.G被摘除后会打包成sudog，注意这里还有对sudog队列的存取过程，然后挂在chan的recvq队列里(G通过调用gopark来调用scheduler)。此时G处于Waiting状态
 					等待另外的G调用goready唤醒
 			case 有发送者sudog（唤醒）：
-				1.发送者G直接将值拷贝到接收者G的栈里面（此时不走通道了，TODO Go只有这种情况下才会操作不同Goroutine栈的数据,不过有个问题：网上说这时不会拿通道锁，但源码里写着拷贝过程中是持锁的？
+				1.发送者G直接将值拷贝到接收者G的栈里面，即recvDirect（此时不走通道了，TODO Go只有这种情况下才会操作不同Goroutine栈的数据,不过有个问题：网上说这时不会拿通道锁，但源码里写着拷贝过程中是持锁的？
 				2.接收者唤醒发送者sudog（goready调用scheduler），使发送者G处于Runnable状态，会被原P的runnext所指向（TODO 可以理解为插队？）
 			}
 		}
