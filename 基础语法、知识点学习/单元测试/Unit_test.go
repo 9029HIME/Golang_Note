@@ -61,13 +61,25 @@ func TestUint8Plus(t *testing.T) {
 }
 
 func TestCacheChannel(t *testing.T) {
-	channel := make(chan int, 10)
+	channel := make(chan int, 2)
+	channel <- 1
+	channel <- 2
 	go func() {
-		fmt.Println(<-channel)
+		time.Sleep(time.Second * 5)
+		<-channel
+		fmt.Println("5秒后取出了一个")
 	}()
+	fmt.Println("准备放3")
+	channel <- 3
+	fmt.Println("放3了")
+	time.Sleep(time.Second * 7)
+}
+func TestNilChannel(t *testing.T) {
+	var channel chan int
 	go func() {
-		time.Sleep(time.Second * 3)
-		channel <- 1
+		<-channel
+		defer fmt.Println("协程的defer")
 	}()
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 3)
+
 }
