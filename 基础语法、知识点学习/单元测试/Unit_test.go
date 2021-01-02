@@ -10,6 +10,11 @@ import (
 	"time"
 )
 
+type Stu struct {
+	name string
+	age  int32
+}
+
 func TestHello(t *testing.T) {
 	s := "abba"
 	bytes := []byte(s)
@@ -81,5 +86,9 @@ func TestNilChannel(t *testing.T) {
 		defer fmt.Println("协程的defer")
 	}()
 	time.Sleep(time.Second * 3)
+
+}
+
+func TestType(t *testing.T) {
 
 }
