@@ -8,11 +8,16 @@ import (
 	"fmt"
 	"testing"
 	"time"
+	"unsafe"
 )
 
 type Stu struct {
-	name string
+	name *string
 	age  int32
+}
+
+type Other struct {
+	otherName *string
 }
 
 func TestHello(t *testing.T) {
@@ -89,6 +94,31 @@ func TestNilChannel(t *testing.T) {
 
 }
 
-func TestType(t *testing.T) {
+func TestPtr(t *testing.T) {
+	other := new(Other)
+	stu := new(Stu)
+	name := "abc"
+	name2 := "def"
+	stu.name = &name
 
+	other.otherName = stu.name
+	fmt.Println("之前othername是", other.otherName) //A
+	fmt.Println("之前stuname是", stu.name)          //A
+	stu.name = &name2
+	fmt.Println("现在othername是", other.otherName) //A
+	fmt.Println("现在stuname是", stu.name)          //B
+	/*
+		other.otherName = stu.name 这一步只是将地址A作为otherName的指向而已
+		stu.name = &name2后会将stu.name的指向改为B
+		但是otherName他只认A，stu.name改为B跟他一点关系也没
+	*/
+}
+
+func TestPtr0(t *testing.T) {
+	a := unsafe.Pointer(uintptr(0))
+	fmt.Println(a == nil)
+}
+
+func TestIntMax(t *testing.T) {
+	fmt.Println(int(^uint32(0) >> 1))
 }

@@ -42,7 +42,7 @@ func useAB(interfacee B) string {
 }
 
 type InterfaceUser struct {
-	//TODO 还可以这样用
+	//TODO 还可以这样用，需要传入A接口的实现类
 	A
 }
 
