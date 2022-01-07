@@ -7,7 +7,7 @@ import (
 
 //TODO Golang中获取命令行参数主要通过flag包（底层使用os.Args）
 /**
-TODO go build -o param.exe flag包.go
+TODO go build -o param.exe flag.go
 		param.exe -u root -p 123
 */
 func main() {
