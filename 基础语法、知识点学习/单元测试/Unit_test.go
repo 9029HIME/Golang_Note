@@ -6,6 +6,7 @@ TODO Golang中单元测试的文件名必须以_test结尾
 */
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 	"unsafe"
@@ -18,6 +19,30 @@ type Stu struct {
 
 type Other struct {
 	otherName *string
+}
+
+func TestGenerics(t *testing.T) {
+	genericsMethod("abc")
+	fmt.Println()
+	genericsChannel()
+	fmt.Println()
+	genericsMap()
+	fmt.Println()
+}
+func genericsMethod[T any](t T) {
+	fmt.Printf("变量类型是：%s", reflect.TypeOf(t))
+}
+func genericsChannel() {
+	type C[T any] chan T
+	c := make(C[string], 10)
+	c <- "hello"
+	fmt.Printf("从泛型通道里出来的值：%s", <-c)
+}
+func genericsMap() {
+	type M[K string, V any] map[K]V
+	m := make(M[string, string])
+	m["你好"] = "泛型"
+	fmt.Printf(m["你好"])
 }
 
 func TestHello(t *testing.T) {
